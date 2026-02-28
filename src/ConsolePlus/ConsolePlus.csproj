@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">  
+   <PropertyGroup>  
+     <TargetFramework>net8.0</TargetFramework>  
+     <ImplicitUsings>enable</ImplicitUsings>  
+     <Nullable>enable</Nullable>  
+     <LangVersion>latest</LangVersion>  
+     <Version>0.1.0</Version>  
+     <Authors>ConsolePlus Team</Authors>  
+     <Description>A modern .NET 8 library that enhances console output with colors, styling, and beautiful formatting.</Description>  
+     <RootNamespace>ConsolePlus</RootNamespace>  
+     <GenerateDocumentationFile>true</GenerateDocumentationFile>  
+     <PublishSingleFile>true</PublishSingleFile>  
+     <SelfContained>false</SelfContained>  
+     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+   </PropertyGroup>  
+   <ItemGroup>
+     <Compile Include="Components\ProgressBar.cs" />
+     <Compile Include="Components\Spinner.cs" />
+     <Compile Include="Components\StatusMessage.cs" />
+     <Compile Include="Components\Table.cs" />
+     <Compile Include="Core\AnsiEscapeCodes.cs" />
+     <Compile Include="Core\ColorPalette.cs" />
+     <Compile Include="Core\ConsoleWriter.cs" />
+     <Compile Include="Core\Theme.cs" />
+     <Compile Include="Output\ColoredOutput.cs" />
+     <Compile Include="Output\FormattedOutput.cs" />
+     <Compile Include="Output\StyledOutput.cs" />
+     <Compile Include="Utilities\ConsoleExtensions.cs" />
+   </ItemGroup>
+</Project>

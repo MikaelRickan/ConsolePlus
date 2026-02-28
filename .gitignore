@@ -1,0 +1,30 @@
+# .NET
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+packages/
+*.nupkg
+
+# Test Results
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Build logs
+build/
