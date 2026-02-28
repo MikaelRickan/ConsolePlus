@@ -28,3 +28,6 @@ coverage/
 
 # Build logs
 build/
+
+# Gemini CLI
+GEMINI.md

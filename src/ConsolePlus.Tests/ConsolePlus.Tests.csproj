@@ -14,6 +14,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ConsolePlus\ConsolePlus.csproj" />
+    <ProjectReference Include="..\ConsolePlus\ConsolePlus.csproj" />
   </ItemGroup>
 </Project>
