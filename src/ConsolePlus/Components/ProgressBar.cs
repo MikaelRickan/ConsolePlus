@@ -2,7 +2,9 @@ using ConsolePlus.Core;
 
 namespace ConsolePlus.Components;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 public class ProgressBar : IDisposable
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 {
     private readonly int _width;
     private char _fillCharacter;
@@ -17,7 +19,9 @@ public class ProgressBar : IDisposable
     private bool _disposed;
     private int _cursorTop;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public ProgressBar(int width = 40, int total = 100)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _width = width;
         _totalProgress = total;
@@ -29,61 +33,81 @@ public class ProgressBar : IDisposable
         _backgroundColor = ConsoleColor.DarkGray;
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public ProgressBar WithFillColor(ConsoleColor color)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _fillColor = color;
         return this;
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public ProgressBar WithBackgroundColor(ConsoleColor color)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _backgroundColor = color;
         return this;
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public ProgressBar WithMessage(string message)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _message = message;
         _showMessage = true;
         return this;
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public ProgressBar WithFillCharacter(char character)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _fillCharacter = character;
         return this;
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public ProgressBar WithEmptyCharacter(char character)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _emptyCharacter = character;
         return this;
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public ProgressBar ShowPercentage(bool show)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _showPercentage = show;
         return this;
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public void Start()
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _cursorTop = Console.CursorTop;
         Render(0);
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public void Update(int value)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         _currentProgress = Math.Clamp(value, 0, _totalProgress);
         Render(_currentProgress);
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public void Increment(int amount = 1)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         Update(_currentProgress + amount);
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public void Complete()
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         Update(_totalProgress);
     }
@@ -130,7 +154,9 @@ public class ProgressBar : IDisposable
         Console.SetCursorPosition(0, _cursorTop);
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public void Dispose()
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         if (_disposed) return;
         

@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 
 namespace ConsolePlus.Core;
@@ -8,14 +9,14 @@ namespace ConsolePlus.Core;
 public class ConsoleWriter
 {
     private readonly StringBuilder _buffer = new();
-    private ConsoleColor _foregroundColor = ConsoleColor.Gray;
-    private ConsoleColor _backgroundColor = ConsoleColor.Black;
+    private Color _foregroundColor = ConsoleColor.Gray;
+    private Color _backgroundColor = ConsoleColor.Black;
     private TextStyle _textStyle = TextStyle.None;
 
     /// <summary>
     /// Gets or sets the current foreground color.
     /// </summary>
-    public ConsoleColor ForegroundColor
+    public Color ForegroundColor
     {
         get => _foregroundColor;
         set => _foregroundColor = value;
@@ -24,7 +25,7 @@ public class ConsoleWriter
     /// <summary>
     /// Gets or sets the current background color.
     /// </summary>
-    public ConsoleColor BackgroundColor
+    public Color BackgroundColor
     {
         get => _backgroundColor;
         set => _backgroundColor = value;
@@ -61,62 +62,39 @@ public class ConsoleWriter
     /// <summary>
     /// Writes text with specific colors.
     /// </summary>
-    public void Write(string text, ConsoleColor foreground, ConsoleColor? background = null)
+    public void Write(string text, Color foreground, Color? background = null)
     {
-        var previousForeground = Console.ForegroundColor;
-        var previousBackground = Console.BackgroundColor;
-
-        Console.ForegroundColor = foreground;
-        if (background.HasValue)
-            Console.BackgroundColor = background.Value;
-
-        Console.Write(text);
-
-        Console.ForegroundColor = previousForeground;
-        Console.BackgroundColor = previousBackground;
-    }
-
-    /// <summary>
-    /// Writes text with ANSI colors.
-    /// </summary>
-    public void WriteAnsi(string text, string foregroundAnsi, string? backgroundAnsi = null)
-    {
-        var reset = AnsiEscapeCodes.Reset;
-        var fg = foregroundAnsi ?? "";
-        var bg = backgroundAnsi ?? "";
-        
-        Console.Write($"{fg}{bg}{text}{reset}");
-    }
-
-    /// <summary>
-    /// Writes a line with ANSI colors.
-    /// </summary>
-    public void WriteLineAnsi(string text, string foregroundAnsi, string? backgroundAnsi = null)
-    {
-        WriteAnsi(text, foregroundAnsi, backgroundAnsi);
-        Console.WriteLine();
+        var fg = foreground.ToForegroundAnsi();
+        var bg = background?.ToBackgroundAnsi() ?? "";
+        Console.Write($"{fg}{bg}{text}{AnsiEscapeCodes.Reset}");
     }
 
     private void ApplyColorAndStyle()
     {
-        Console.ForegroundColor = _foregroundColor;
-        Console.BackgroundColor = _backgroundColor;
+        Console.Write(_foregroundColor.ToForegroundAnsi());
+        Console.Write(_backgroundColor.ToBackgroundAnsi());
+        
+        if (_textStyle.HasFlag(TextStyle.Bold)) Console.Write(AnsiEscapeCodes.Bold);
+        if (_textStyle.HasFlag(TextStyle.Dim)) Console.Write(AnsiEscapeCodes.Dim);
+        if (_textStyle.HasFlag(TextStyle.Italic)) Console.Write(AnsiEscapeCodes.Italic);
+        if (_textStyle.HasFlag(TextStyle.Underline)) Console.Write(AnsiEscapeCodes.Underline);
+        if (_textStyle.HasFlag(TextStyle.Strikethrough)) Console.Write(AnsiEscapeCodes.Strikethrough);
     }
 
     private void ResetColorAndStyle()
     {
-        Console.ResetColor();
+        Console.Write(AnsiEscapeCodes.Reset);
     }
 
     /// <summary>
     /// Creates a new ConsoleWriter with the specified foreground color.
     /// </summary>
-    public static ConsoleWriter WithColor(ConsoleColor foreground) => new() { _foregroundColor = foreground };
+    public static ConsoleWriter WithColor(Color foreground) => new() { _foregroundColor = foreground };
 
     /// <summary>
     /// Creates a new ConsoleWriter with the specified colors.
     /// </summary>
-    public static ConsoleWriter WithColors(ConsoleColor foreground, ConsoleColor background) 
+    public static ConsoleWriter WithColors(Color foreground, Color background) 
         => new() { _foregroundColor = foreground, _backgroundColor = background };
 
     /// <summary>
@@ -131,14 +109,32 @@ public class ConsoleWriter
 [Flags]
 public enum TextStyle
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     None = 0,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Bold = 1,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Dim = 2,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Italic = 4,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Underline = 8,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Blink = 16,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Reverse = 32,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Hidden = 64,
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     Strikethrough = 128
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }
 

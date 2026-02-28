@@ -5,44 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-02-28
+## [1.0.0] - 2026-03-01
 
 ### Added
-- **Core Components**
-  - `AnsiEscapeCodes` - Full ANSI escape sequence constants (colors, styles, cursor control)
-  - `TextStyle` enum - Text styling options (Bold, Italic, Underline, etc.)
-  - `ConsoleWriter` - Core writing functionality with color/style support
-
-- **Color Support**
-  - `ColorPalette` - 6 predefined color palettes (Default, Solarized, Nord, Dracula, Christmas, Ocean)
-  - `Theme` - Theme management with 9 built-in themes
-  - 256-color mode support
-  - RGB color mode support
-
-- **Output Classes**
-  - `ColoredOutput` - Success, Error, Warning, Info, Debug messages with theme support
-  - `StyledOutput` - Bold, Italic, Underline, Strikethrough, Dim text styling
-  - `FormattedOutput` - JSON, XML, and Markdown formatting with syntax highlighting
-
-- **Components**
-  - `ProgressBar` - Customizable progress bars with fill characters, colors, messages
-  - `Table` - Tables with 4 border styles, header colors, row alternation, column colors
-  - `Spinner` - 9 spinner styles with success/error callbacks
-  - `StatusMessage` - In-place status updates with various states
-
-- **Extensions**
-  - `ConsoleExtensions` - String extension methods for colored output
-
-- **Sample Application**
-  - `ConsolePlus.Sample` - Demo application showcasing all features
-
-### Fixed
-- Duplicate class definitions in source files
-- Table rendering bug with border characters
-- ProgressBar stub methods now work correctly
-- JSON value display issue
-- XML formatting improvements
+- **Core Improvements**
+  - New `Color` struct with Hex, RGB, and 256-color support.
+  - Powerful `Markup` engine for tag-based styling: `[bold red]Text[/]`.
+  - Automatic Windows VT (Virtual Terminal) initialization and UTF-8 emoji support.
+  - Fluent API for chained styling: `"Hello".Bold().Red().WriteLine()`.
+- **Interactive Prompt Suite**
+  - `Prompt.Confirm`, `Prompt.Select`, `Prompt.MultiSelect`, `Prompt.Ask`, and `Prompt.Secret`.
+  - `Prompt.Menu<T>` for structured, interactive navigation.
+- **Advanced UI Components**
+  - `Card` component with rounded corners, titles, subtitles, and footers.
+  - `ListView` for beautiful bulleted and numbered lists.
+  - `Panel` with fluid width support and automatic text wrapping.
+  - `Table` overhauled with rounded borders and responsive column scaling.
+  - `LiveArea` for flicker-free, managed console regions.
+- **Visual Effects & Animations**
+  - `Typewriter` effect with full Markup tag support.
+  - `Gradient` rendering for smooth horizontal color transitions.
+  - `Notification` helper for styled status messages.
+  - Native ANSI effects: `blink`, `reverse`, `dim`, etc.
+- **Premium Demos**
+  - **Enterprise Dashboard**: A real-time cloud monitor simulation.
+  - **Retro Snake Game**: A fully playable, flicker-free console game.
+  - **Theme Gallery**: Visual showcase of all built-in color palettes.
 
 ### Changed
-- Theme integration - ColoredOutput now uses Theme.Current.Colors for consistent theming
-- Improved demo application with comprehensive feature showcase
+- **Architecture**: Replaced `ColoredOutput`, `StyledOutput`, and `FormattedOutput` with unified `Markup` and `SyntaxHighlighter` systems.
+- **Responsiveness**: Optimized all components to be "content-aware" and terminal-responsive (fluid layouts).
+- **Initialization**: Simplified library initialization to a single `ConsoleHelper.Setup()` call.
+- **Table System**: Transitioned from fixed border tuples to a dynamic, scalable rendering engine.
+
+## [0.1.0] - 2026-02-28
+- Initial internal beta release.

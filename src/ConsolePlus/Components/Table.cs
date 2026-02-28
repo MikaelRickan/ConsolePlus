@@ -1,161 +1,153 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ConsolePlus.Core;
+
 namespace ConsolePlus.Components;
 
+/// <summary>
+/// A modern table component with rounded borders, markup support, and automatic scaling.
+/// </summary>
 public class Table
 {
+    private string[] _headers = Array.Empty<string>();
     private readonly List<string[]> _rows = new();
-    private string[]? _headers;
-    private readonly List<int> _columnWidths = new();
-    private ConsoleColor _headerColor = ConsoleColor.Cyan;
-    private ConsoleColor _borderColor = ConsoleColor.Gray;
-    private ConsoleColor _alternateRowColor = ConsoleColor.Gray;
-    private TableBorderStyle _borderStyle = TableBorderStyle.Simple;
-    private bool _alternateRowColors;
-    private List<ConsoleColor>? _columnColors;
+    private Color _borderColor = Color.FromHex("#444444");
+    private Color _headerColor = Color.Cyan;
+    private bool _widthFluid = false;
 
-    public Table() { }
-
-    public Table AddHeader(params string[] headers)
+    public void AddHeader(params string[] headers)
     {
         _headers = headers;
-        UpdateColumnWidths(headers);
-        return this;
     }
 
-    public Table AddRow(params string[] row)
+    public void AddRow(params string[] row)
     {
         _rows.Add(row);
-        UpdateColumnWidths(row);
-        return this;
     }
 
-    public Table WithHeaderColor(ConsoleColor color)
+    public Table Fluid()
     {
-        _headerColor = color;
+        _widthFluid = true;
         return this;
     }
 
-    public Table WithBorderColor(ConsoleColor color)
+    public Table WithBorderColor(Color color)
     {
         _borderColor = color;
         return this;
     }
 
-    public Table WithAlternateRowColors(bool enable = true)
+    public Table WithHeaderColor(Color color)
     {
-        _alternateRowColors = enable;
+        _headerColor = color;
         return this;
-    }
-
-    public Table WithAlternateRowColor(ConsoleColor color)
-    {
-        _alternateRowColor = color;
-        return this;
-    }
-
-    public Table WithBorderStyle(TableBorderStyle style)
-    {
-        _borderStyle = style;
-        return this;
-    }
-
-    public Table WithColumnColors(params ConsoleColor[] colors)
-    {
-        _columnColors = colors.ToList();
-        return this;
-    }
-
-    private void UpdateColumnWidths(string[] data)
-    {
-        while (_columnWidths.Count < data.Length)
-            _columnWidths.Add(0);
-
-        for (int i = 0; i < data.Length; i++)
-        {
-            _columnWidths[i] = Math.Max(_columnWidths[i], data[i].Length);
-        }
     }
 
     public void Render()
     {
-        if (_headers == null && _rows.Count == 0)
-            return;
+        if (_headers.Length == 0 && _rows.Count == 0) return;
 
-        var borders = GetBorderCharacters();
-        
-        WriteBorderLine(borders.Top, borders.TopLeft, borders.TopRight, borders.TopMid, borders.Mid);
+        int columnCount = Math.Max(_headers.Length, _rows.Count > 0 ? _rows.Max(r => r.Length) : 0);
+        int[] columnWidths = new int[columnCount];
+        int maxWidth = Console.WindowWidth - (columnCount + 1); // Account for borders
 
-        if (_headers != null)
+        // 1. Calculate ideal widths
+        for (int i = 0; i < columnCount; i++)
         {
-            WriteRow(_headers, _headerColor, borders);
-            WriteBorderLine(borders.Mid, borders.MidLeft, borders.MidRight, borders.MidMid, borders.Mid);
+            int max = i < _headers.Length ? Markup.GetVisibleLength(_headers[i]) : 0;
+            foreach (var row in _rows)
+            {
+                if (i < row.Length)
+                    max = Math.Max(max, Markup.GetVisibleLength(row[i]));
+            }
+            columnWidths[i] = max + 2; // +2 for cell padding
         }
 
-        for (int i = 0; i < _rows.Count; i++)
+        // 2. Scale down if necessary
+        int totalWidth = columnWidths.Sum();
+        if (totalWidth > maxWidth || _widthFluid)
         {
-            var rowColor = _alternateRowColors && i % 2 == 1 ? _alternateRowColor : ConsoleColor.Gray;
-            WriteRow(_rows[i], rowColor, borders);
-        }
-
-        WriteBorderLine(borders.Bottom, borders.BottomLeft, borders.BottomRight, borders.BottomMid, borders.Mid);
-    }
-
-    private void WriteRow(string[] row, ConsoleColor color, (string Top, string Bottom, string Mid, string TopLeft, string TopRight, string BottomLeft, string BottomRight, string MidLeft, string MidRight, string TopMid, string BottomMid, string MidMid) borders)
-    {
-        var originalColor = Console.ForegroundColor;
-        Console.ForegroundColor = _borderColor;
-        Console.Write(borders.MidLeft);
-
-        for (int i = 0; i < row.Length; i++)
-        {
-            var cellColor = _columnColors?.Count > i ? _columnColors[i] : color;
-            Console.ForegroundColor = cellColor;
+            // Simple proportional scaling
+            double ratio = (double)maxWidth / totalWidth;
+            if (_widthFluid) ratio = (double)maxWidth / totalWidth;
             
-            var cell = row[i].PadRight(_columnWidths[i]);
-            Console.Write($" {cell} ");
-
-            Console.ForegroundColor = _borderColor;
-            Console.Write(i < row.Length - 1 ? borders.MidMid : "");
+            for (int i = 0; i < columnCount; i++)
+            {
+                columnWidths[i] = Math.Max(5, (int)(columnWidths[i] * ratio));
+            }
+            
+            // Adjust last column for rounding errors
+            int newTotal = columnWidths.Sum();
+            columnWidths[columnCount - 1] += (maxWidth - newTotal);
         }
 
-        Console.ForegroundColor = _borderColor;
-        Console.WriteLine(borders.MidRight);
-        Console.ForegroundColor = originalColor;
-    }
-
-    private void WriteBorderLine(string fill, string left, string right, string mid, string midFill)
-    {
-        var originalColor = Console.ForegroundColor;
-        Console.ForegroundColor = _borderColor;
-
-        Console.Write(left);
-        for (int i = 0; i < _columnWidths.Count; i++)
+        // 3. Render
+        RenderBorder("╭", "┬", "╮", columnWidths);
+        
+        if (_headers.Length > 0)
         {
-            var width = _columnWidths[i] + 2;
-            Console.Write(new string(fill[0], width));
-            Console.Write(i < _columnWidths.Count - 1 ? mid : "");
+            RenderRow(_headers, columnWidths, _headerColor, true);
+            RenderBorder("├", "┼", "┤", columnWidths);
         }
-        Console.WriteLine(right);
 
-        Console.ForegroundColor = originalColor;
-    }
-
-    private (string Top, string Bottom, string Mid, string TopLeft, string TopRight, string BottomLeft, string BottomRight, string MidLeft, string MidRight, string TopMid, string BottomMid, string MidMid) GetBorderCharacters()
-    {
-        return _borderStyle switch
+        foreach (var row in _rows)
         {
-            TableBorderStyle.Simple => ("─", "─", "─", "┌", "┐", "└", "┘", "│", "│", "┬", "┴", "┼"),
-            TableBorderStyle.Double => ("═", "═", "═", "╔", "╗", "╚", "╝", "║", "║", "╦", "╩", "╬"),
-            TableBorderStyle.Rounded => ("─", "─", "─", "╭", "╮", "╰", "╯", "│", "│", "┬", "┴", "┼"),
-            TableBorderStyle.Compact => (" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "),
-            _ => ("─", "─", "─", "┌", "┐", "└", "┘", "│", "│", "┬", "┴", "┼")
-        };
-    }
-}
+            RenderRow(row, columnWidths);
+        }
 
-public enum TableBorderStyle
-{
-    Simple,
-    Double,
-    Rounded,
-    Compact
+        RenderBorder("╰", "┴", "╯", columnWidths);
+    }
+
+    private void RenderBorder(string left, string mid, string right, int[] widths)
+    {
+        Console.Write(_borderColor.ToForegroundAnsi() + left);
+        for (int i = 0; i < widths.Length; i++)
+        {
+            Console.Write(new string('─', widths[i]));
+            if (i < widths.Length - 1) Console.Write(mid);
+        }
+        Console.WriteLine(right + AnsiEscapeCodes.Reset);
+    }
+
+    private void RenderRow(string[] row, int[] widths, Color? color = null, bool bold = false)
+    {
+        // Handle wrapping in cells by splitting into sub-rows
+        var cellLines = new List<string[]>();
+        int maxLines = 1;
+
+        for (int i = 0; i < widths.Length; i++)
+        {
+            var text = i < row.Length ? row[i] : "";
+            var wrapped = Markup.WrapText(text, widths[i] - 2);
+            var lines = wrapped.Replace("\r", "").Split('\n');
+            cellLines.Add(lines);
+            maxLines = Math.Max(maxLines, lines.Length);
+        }
+
+        for (int lineIndex = 0; lineIndex < maxLines; lineIndex++)
+        {
+            Console.Write(_borderColor.ToForegroundAnsi() + "│" + AnsiEscapeCodes.Reset);
+            for (int i = 0; i < widths.Length; i++)
+            {
+                var line = lineIndex < cellLines[i].Length ? cellLines[i][lineIndex].Trim() : "";
+                WriteCell(line, widths[i], color, bold);
+                Console.Write(_borderColor.ToForegroundAnsi() + "│" + AnsiEscapeCodes.Reset);
+            }
+            Console.WriteLine();
+        }
+    }
+
+    private void WriteCell(string text, int width, Color? color, bool bold)
+    {
+        Console.Write(" ");
+        if (color.HasValue) Console.Write(color.Value.ToForegroundAnsi());
+        if (bold) Console.Write(AnsiEscapeCodes.Bold);
+        
+        Markup.Write(text);
+        
+        Console.Write(AnsiEscapeCodes.Reset);
+        int padding = width - Markup.GetVisibleLength(text) - 1;
+        if (padding > 0) Console.Write(new string(' ', padding));
+    }
 }

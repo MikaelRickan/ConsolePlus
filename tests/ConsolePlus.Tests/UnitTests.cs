@@ -43,19 +43,6 @@ public class TableTests
     }
 
     [Fact]
-    public void Table_WithBorderStyle_SetsBorderStyle()
-    {
-        var table = new Table();
-        table.WithBorderStyle(TableBorderStyle.Double);
-
-        var borderStyleField = table.GetType()
-            .GetField("_borderStyle", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var borderStyle = (TableBorderStyle)borderStyleField!.GetValue(table)!;
-
-        Assert.Equal(TableBorderStyle.Double, borderStyle);
-    }
-
-    [Fact]
     public void Table_WithHeaderColor_SetsColor()
     {
         var table = new Table();
@@ -63,9 +50,9 @@ public class TableTests
 
         var headerColorField = table.GetType()
             .GetField("_headerColor", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var headerColor = (ConsoleColor)headerColorField!.GetValue(table)!;
+        var headerColor = (Color)headerColorField!.GetValue(table)!;
 
-        Assert.Equal(ConsoleColor.Cyan, headerColor);
+        Assert.Equal(new Color(ConsoleColor.Cyan).ToForegroundAnsi(), headerColor.ToForegroundAnsi());
     }
 }
 
@@ -227,64 +214,29 @@ public class ThemeTests
     }
 }
 
-public class FormattedOutputTests
+public class SyntaxHighlighterTests
 {
     [Fact]
-    public void WriteJson_ValidJson_DoesNotThrow()
+    public void SyntaxHighlighter_HighlightJson_DoesNotThrow()
     {
-        var json = @"{
-            ""name"": ""John"",
-            ""age"": 30
-        }";
-
-        var exception = Record.Exception(() => FormattedOutput.WriteJson(json));
-
+        var json = "{\"name\": \"John\", \"age\": 30}";
+        var exception = Record.Exception(() => SyntaxHighlighter.HighlightJson(json));
         Assert.Null(exception);
     }
 
     [Fact]
-    public void WriteJson_InvalidJson_ShowsError()
+    public void SyntaxHighlighter_HighlightCSharp_DoesNotThrow()
     {
-        var invalidJson = "not valid json";
-
-        var exception = Record.Exception(() => FormattedOutput.WriteJson(invalidJson));
-
+        var code = "public class Test { }";
+        var exception = Record.Exception(() => SyntaxHighlighter.HighlightCSharp(code));
         Assert.Null(exception);
     }
 
     [Fact]
-    public void WriteXml_ValidXml_DoesNotThrow()
+    public void SyntaxHighlighter_HighlightMarkdown_DoesNotThrow()
     {
-        var xml = @"<person><name>John</name><age>30</age></person>";
-
-        var exception = Record.Exception(() => FormattedOutput.WriteXml(xml));
-
-        Assert.Null(exception);
-    }
-
-    [Fact]
-    public void WriteXml_InvalidXml_ShowsError()
-    {
-        var invalidXml = "<person><name>John</name></person";
-
-        var exception = Record.Exception(() => FormattedOutput.WriteXml(invalidXml));
-
-        Assert.Null(exception);
-    }
-
-    [Fact]
-    public void WriteMarkdown_ValidMarkdown_DoesNotThrow()
-    {
-        var markdown = @"# Heading
-
-**Bold** and *italic*
-
-- Item 1
-- Item 2
-";
-
-        var exception = Record.Exception(() => FormattedOutput.WriteMarkdown(markdown));
-
+        var markdown = "# Heading\n**Bold** and *italic*";
+        var exception = Record.Exception(() => SyntaxHighlighter.HighlightMarkdown(markdown));
         Assert.Null(exception);
     }
 }
